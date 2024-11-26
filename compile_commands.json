@@ -1,0 +1,38 @@
+[
+ {
+  "directory": "/Users/sean/src/sctmp",
+  "arguments": [
+   "clang++",
+   "-target",
+   "aarch64-pc-windows-msvc",
+   "-O3",
+   "-shared",
+   "-fuse-ld=lld",
+   "-Weverything",
+   "-Wno-missing-prototypes",
+   "-Wno-old-style-cast",
+   "-Wno-unsafe-buffer-usage",
+   "-Wno-unused-parameter",
+   "-isystem/opt/xwin//splat/crt/include",
+   "-isystem/opt/xwin//splat/sdk/include",
+   "-isystem/opt/xwin//splat/sdk/include/cppwinrt",
+   "-isystem/opt/xwin//splat/sdk/include/ucrt",
+   "-isystem/opt/xwin//splat/sdk/include/shared",
+   "-isystem/opt/xwin//splat/sdk/include/um",
+   "-isystem/opt/xwin//splat/sdk/include/winrt",
+   "-isystem/opt/sierrachart//ACS_Source",
+   "-L/opt/xwin//splat/crt/lib/aarch64",
+   "-L/opt/xwin//splat/sdk/lib/aarch64",
+   "-L/opt/xwin//splat/sdk/lib/ucrt/aarch64",
+   "-L/opt/xwin//splat/sdk/lib/um/aarch64",
+   "-o",
+   "example_arm64.dll",
+   "example.cpp",
+   "-lgdi32",
+   "-lkernel32",
+   "-luser32",
+   "-ldwmapi"
+  ],
+  "file": "example.cpp"
+ }
+]
