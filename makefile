@@ -1,12 +1,12 @@
 xwin ?= /opt/xwin/
 sierrachart ?= /opt/sierrachart/
 
-destdir ?= ~/.wine/drive_c/SierraChart/Data/ /Volumes/[C]%Windows%11/SierraChart/Data/
+destdir ?= ~/.wine/drive_c/SierraChart/Data/ /Volumes/[C]%Windows%11/SierraChart/Data/ /Volumes/[C]%Windows%11/SierraChartREPLAY/Data/
 host ?= localhost windows-11
 
 CXX = clang++
 CXXFLAGS += -target $(arch)-pc-windows-msvc -O3 -shared -fuse-ld=lld
-CXXFLAGS += -Weverything -Wno-missing-prototypes -Wno-old-style-cast -Wno-unsafe-buffer-usage -Wno-unused-parameter
+CXXFLAGS += -Weverything -Wno-c++98-compat -Wno-missing-prototypes -Wno-old-style-cast -Wno-unsafe-buffer-usage -Wno-unused-parameter
 CXXFLAGS += $(addprefix -isystem, $(header))
 LDFLAGS += $(addprefix -L, $(addsuffix /$(arch), $(library)))
 LDLIBS += -lgdi32 -lkernel32 -luser32 -ldwmapi
@@ -38,17 +38,19 @@ x86_64: $(x86_64)
 clean:
 	rm -f $(aarch64) $(aarch64:.dll=.lib) $(aarch64:.dll=.pdb) $(x86_64) $(x86_64:.dll=.lib) $(x86_64:.dll=.pdb)
 
-install: $(aarch64) $(x86_64)
+install: $(wildcard *.dll)
 	$(foreach dir, $(destdir), $(foreach dll, $^, cp $(dll) $(subst %,\ , $(dir));))
 
 uninstall: unload
 	$(foreach dir, $(destdir), cd $(subst %,\ ,$(dir)) && rm -f $(aarch64) $(x86_64);)
 
 unload:
-	$(foreach h, $(host), scdll -a $(h) unload;)
+	$(foreach h, $(host), scdll -a $(h) -p 22903 unload;)
+	$(foreach h, $(host), scdll -a $(h) -p 22904 unload;)
 
 load:
-	$(foreach h, $(host), scdll -a $(h) load;)
+	$(foreach h, $(host), scdll -a $(h) -p 22903 load;)
+	$(foreach h, $(host), scdll -a $(h) -p 22904 load;)
 
 reload: unload install load
 
