@@ -28,6 +28,7 @@ SCSFExport scsf_walk(SCStudyInterfaceRef sc) {
 		button.SetIntLimits(1, MAX_ACS_CONTROL_BAR_BUTTONS);
 		delay.Name = "delay";
 		delay.SetTimeAsSCDateTime(SCDateTime(0, 10, 0, 0));
+		delay.SetDateTimeLimits(SCDateTime(0, 0, 1, 0), SCDateTime(23, 59, 59, 0));
 		delay_random.Name = "delay random";
 		delay_random.SetYesNo(1);
 		probability.Name = "probability";
