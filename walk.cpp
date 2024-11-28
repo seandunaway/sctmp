@@ -27,7 +27,7 @@ SCSFExport scsf_walk(SCStudyInterfaceRef sc) {
 		button.SetInt(1);
 		button.SetIntLimits(1, MAX_ACS_CONTROL_BAR_BUTTONS);
 		delay.Name = "delay";
-		delay.SetTimeAsSCDateTime(SCDateTime(0, 10, 0, 0));
+		delay.SetTimeAsSCDateTime(SCDateTime(0, 5, 0, 0));
 		delay.SetDateTimeLimits(SCDateTime(0, 0, 1, 0), SCDateTime(23, 59, 59, 0));
 		delay_random.Name = "delay random";
 		delay_random.SetYesNo(1);
@@ -36,17 +36,20 @@ SCSFExport scsf_walk(SCStudyInterfaceRef sc) {
 		probability.SetIntLimits(0, 100);
 		reward.Name = "reward";
 		reward.SetDouble(2);
-		reward.SetDoubleLimits(0, 100);
+		reward.SetDoubleLimits((double) sc.TickSize, 100);
 		risk.Name = "risk";
 		risk.SetDouble(20);
-		risk.SetDoubleLimits(0, 100);
+		risk.SetDoubleLimits((double) sc.TickSize, 100);
 		tag.Name = "tag";
 		tag.SetString("walk");
 
 		return;
 	}
 
-	if (sc.UpdateStartIndex == 0) {
+	int& init = sc.GetPersistentIntFast(++persistent);
+	if (!init) {
+		init = 1;
+
 		sc.SetCustomStudyControlBarButtonHoverText(button.GetInt(), tag.GetString());
 		sc.SetCustomStudyControlBarButtonShortCaption(button.GetInt(), tag.GetString());
 		sc.SetCustomStudyControlBarButtonText(button.GetInt(), tag.GetString());
@@ -56,6 +59,8 @@ SCSFExport scsf_walk(SCStudyInterfaceRef sc) {
 		return;
 	}
 
+	if (sc.IsFullRecalculation) return;
+	if (sc.LastCallToFunction) sc.SetCustomStudyControlBarButtonEnable(button.GetInt(), 0);
 	if (!sc.GetCustomStudyControlBarButtonEnableState(button.GetInt())) return;
 
 	s_SCPositionData position;
