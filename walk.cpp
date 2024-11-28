@@ -14,6 +14,7 @@ SCSFExport scsf_walk(SCStudyInterfaceRef sc) {
 	SCInputRef probability = sc.Input[++input];
 	SCInputRef reward = sc.Input[++input];
 	SCInputRef risk = sc.Input[++input];
+	SCInputRef tag = sc.Input[++input];
 
 	if (sc.SetDefaults) {
 		sc.AllowOnlyOneTradePerBar = 0;
@@ -38,14 +39,16 @@ SCSFExport scsf_walk(SCStudyInterfaceRef sc) {
 		risk.Name = "risk";
 		risk.SetDouble(20);
 		risk.SetDoubleLimits(0, 100);
+		tag.Name = "tag";
+		tag.SetString("walk");
 
 		return;
 	}
 
 	if (sc.UpdateStartIndex == 0) {
-		sc.SetCustomStudyControlBarButtonHoverText(button.GetInt(), "walk");
-		sc.SetCustomStudyControlBarButtonShortCaption(button.GetInt(), "walk");
-		sc.SetCustomStudyControlBarButtonText(button.GetInt(), "walk");
+		sc.SetCustomStudyControlBarButtonHoverText(button.GetInt(), tag.GetString());
+		sc.SetCustomStudyControlBarButtonShortCaption(button.GetInt(), tag.GetString());
+		sc.SetCustomStudyControlBarButtonText(button.GetInt(), tag.GetString());
 
 		srand((unsigned int) time(nullptr));
 
@@ -82,7 +85,7 @@ SCSFExport scsf_walk(SCStudyInterfaceRef sc) {
 	order.TimeInForce = SCT_TIF_GOOD_TILL_CANCELED;
 	order.Target1Offset = sc.RoundToTickSize(reward.GetDouble());
 	order.Stop1Offset = sc.RoundToTickSize(risk.GetDouble());
-	order.TextTag = "walk";
+	order.TextTag = tag.GetString();
 
 	bool coinflip = (rand() % 100) < probability.GetInt();
 	if (coinflip) sc.BuyEntry(order);
