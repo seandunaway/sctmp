@@ -23,15 +23,15 @@ aarch64 = $(src:.cpp=_arm64.dll)
 x86_64 = $(src:.cpp=_64.dll)
 
 default: aarch64 x86_64
-
-aarch64: arch = aarch64
 aarch64: $(aarch64)
+x86_64: $(x86_64)
+
+%_arm64.dll: arch = aarch64
 %_arm64.dll: %.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 	rm $*_arm64.lib
 
-x86_64: arch = x86_64
-x86_64: $(x86_64)
+%_64.dll: arch = x86_64
 %_64.dll: %.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 	rm $*_64.lib
