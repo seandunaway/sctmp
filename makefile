@@ -3,6 +3,7 @@ sierrachart ?= /opt/sierrachart/
 
 destdir ?= ~/.wine/drive_c/SierraChart/Data/ /Volumes/[C]%Windows%11/SierraChart/Data/ /Volumes/[C]%Windows%11/SierraChartREPLAY/Data/
 host ?= localhost windows-11
+port ?= 22903 22904
 
 CXX = clang++
 CXXFLAGS += -target $(arch)-pc-windows-msvc -O3 -shared -fuse-ld=lld
@@ -45,12 +46,10 @@ uninstall: unload
 	$(foreach dir, $(destdir), cd $(subst %,\ ,$(dir)) && rm -f $(aarch64) $(x86_64);)
 
 unload:
-	$(foreach h, $(host), scdll -a $(h) -p 22903 unload;)
-	$(foreach h, $(host), scdll -a $(h) -p 22904 unload;)
+	$(foreach h, $(host), $(foreach p, $(port), scdll -a $(h) -p $(p) unload;))
 
 load:
-	$(foreach h, $(host), scdll -a $(h) -p 22903 load;)
-	$(foreach h, $(host), scdll -a $(h) -p 22904 load;)
+	$(foreach h, $(host), $(foreach p, $(port), scdll -a $(h) -p $(p)  load;))
 
 reload: unload install load
 
