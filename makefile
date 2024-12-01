@@ -13,8 +13,7 @@ LDFLAGS += $(addprefix -L, $(addsuffix /$(arch), $(library)))
 LDLIBS += -lgdi32 -lkernel32 -luser32 -ldwmapi
 
 ifndef strip
-srcdir ?= z:\\src\\sctmp
-CXXFLAGS += -O0 -g -fdebug-prefix-map=/Users/sean/src=$(source_map)
+CXXFLAGS += -O0 -g -fstandalone-debug -fdebug-prefix-map=/Users/sean/src=$(source_map)
 endif
 
 header += $(xwin)/splat/crt/include
@@ -52,6 +51,7 @@ uninstall: unload
 
 unload:
 	$(foreach h, $(host), $(foreach p, $(port), scdll -a $(h) -p $(p) unload;))
+	sleep 1
 
 load:
 	$(foreach h, $(host), $(foreach p, $(port), scdll -a $(h) -p $(p)  load;))
