@@ -88,9 +88,10 @@ SCSFExport scsf_papertape(SCStudyInterfaceRef sc) {
 		sc.DisplayStudyName = 0;
 		sc.GraphName = "papertape";
 		sc.GraphRegion = 0;
-
 		return;
 	}
+
+	if (sc.HideStudy) return;
 
 	sc.p_GDIFunction = draw;
 }
