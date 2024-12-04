@@ -25,11 +25,33 @@ struct grid
 	int total_columns, last_visible_column, first_visible_column;
 };
 
-SCString bar_to_text (struct bar bar)
+SCString bar_to_text (SCStudyInterfaceRef sc, struct bar bar)
 {
+	n_ACSIL::s_BarPeriod bar_period;
+	sc.GetBarPeriodParameters(bar_period);
+
 	SCString text;
 
-	text.Format("%02d:%02d %.2f", bar.hour, bar.minute, (double) bar.last_price);
+	switch (bar_period.ChartDataType)
+	{
+		case INTRADAY_DATA:
+
+			text.AppendFormat("%02d:%02d", bar.hour, bar.minute);
+			break;
+
+		case DAILY_DATA:
+
+			text.AppendFormat("%02d-%02d", bar.month, bar.day);
+			break;
+
+                case MARKET_DEPTH_DATA:
+                case NO_DATA_TYPE:
+		default:
+			break;
+	}
+
+	text.AppendFormat(" ");
+	text.AppendFormat("%.2f", (double) bar.last_price);
 	text.Append("  ");
 
 	return text;
@@ -90,7 +112,7 @@ void set_draw_style (SCStudyInterfaceRef sc, n_ACSIL::s_GraphicsFont font, struc
 struct grid calculate_grid (SCStudyInterfaceRef sc)
 {
 	struct bar first_bar = get_bar(sc, 0);
-	SCString first_text = bar_to_text(first_bar);
+	SCString first_text = bar_to_text(sc, first_bar);
 
 	n_ACSIL::s_GraphicsFont font = get_chart_font(sc);
 	n_ACSIL::s_GraphicsSize text_dimensions;
@@ -142,7 +164,7 @@ void draw (HWND WindowHandle, HDC DeviceContext, SCStudyInterfaceRef sc)
 				return;
 
 			struct bar bar = get_bar(sc, bar_index);
-			SCString text = bar_to_text(bar);
+			SCString text = bar_to_text(sc, bar);
 
 			int pixels_from_top = row * grid.cell_height;
 			int y = grid.top + pixels_from_top;

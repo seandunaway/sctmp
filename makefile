@@ -1,13 +1,13 @@
-destdir ?= /Volumes/[C]%Windows%11/SierraChart/Data/ /Volumes/[C]%Windows%11/SierraChartREPLAY/Data/
+destdir ?= /Volumes/[C]%Windows%11/SierraChart/Data/ /Volumes/[C]%Windows%11/SierraChartDATA/Data/ /Volumes/[C]%Windows%11/SierraChartREPLAY/Data/
 host ?= windows-11
-port ?= 22903 22904
+port ?= 22903 22904 22905
 sierrachart ?= /Users/sean/src/_lib/sierrachart
 xwin ?= /Users/sean/src/_lib/xwin
 source_map ?= z:/src
 
 CXX = clang++
 CXXFLAGS += -target $(arch)-pc-windows-msvc -O3 -shared -fuse-ld=lld
-CXXFLAGS += -Weverything -Wno-c++98-compat -Wno-missing-prototypes -Wno-old-style-cast -Wno-unsafe-buffer-usage -Wno-unused-parameter
+CXXFLAGS += -Weverything -Wno-c++98-compat -Wno-covered-switch-default -Wno-missing-prototypes -Wno-old-style-cast -Wno-unsafe-buffer-usage -Wno-unused-parameter
 CXXFLAGS += $(addprefix -isystem, $(header))
 LDFLAGS += $(addprefix -L, $(addsuffix /$(arch), $(library)))
 LDLIBS += -lgdi32 -lkernel32 -luser32 -ldwmapi
