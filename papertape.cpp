@@ -111,12 +111,12 @@ void set_draw_style (SCStudyInterfaceRef sc, n_ACSIL::s_GraphicsFont font, struc
 
 struct grid calculate_grid (SCStudyInterfaceRef sc)
 {
-	struct bar first_bar = get_bar(sc, 0);
-	SCString first_text = bar_to_text(sc, first_bar);
+	struct bar last_bar = get_bar(sc, sc.IndexOfLastVisibleBar);
+	SCString last_text = bar_to_text(sc, last_bar);
 
 	n_ACSIL::s_GraphicsFont font = get_chart_font(sc);
 	n_ACSIL::s_GraphicsSize text_dimensions;
-	sc.Graphics.GetTextSizeWithFont(first_text, font, text_dimensions);
+	sc.Graphics.GetTextSizeWithFont(last_text, font, text_dimensions);
 
 	struct grid grid;
 
