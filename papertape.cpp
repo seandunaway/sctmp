@@ -183,7 +183,10 @@ SCSFExport scsf_papertape (SCStudyInterfaceRef sc)
 		sc.GraphRegion = 0;
 	}
 
-	if (sc.HideStudy || sc.IsFullRecalculation || sc.DownloadingHistoricalData)
+	if (sc.HideStudy)
+		return;
+
+	if (sc.LastCallToFunction)
 		return;
 
 	sc.p_GDIFunction = draw;
