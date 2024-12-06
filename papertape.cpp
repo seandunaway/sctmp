@@ -68,6 +68,21 @@ struct bar get_bar (SCStudyInterfaceRef sc, int index)
 	return bar;
 }
 
+n_ACSIL::s_GraphicsFont get_chart_font (SCStudyInterfaceRef sc)
+{
+	n_ACSIL::s_GraphicsFont font;
+
+	int32_t is_italic;
+	int32_t is_underline;
+
+	sc.GetChartFontProperties(font.m_FaceName, font.m_Height, font.m_Weight, is_italic, is_underline);
+
+	font.m_IsItalic = (bool) is_italic;
+	font.m_IsUnderline = (bool) is_underline;
+
+	return font;
+}
+
 struct colors get_chart_colors (SCStudyInterfaceRef sc)
 {
 	struct colors colors;
@@ -86,21 +101,6 @@ struct colors get_chart_colors (SCStudyInterfaceRef sc)
 	return colors;
 }
 
-n_ACSIL::s_GraphicsFont get_chart_font (SCStudyInterfaceRef sc)
-{
-	n_ACSIL::s_GraphicsFont font;
-
-	int32_t is_italic;
-	int32_t is_underline;
-
-	sc.GetChartFontProperties(font.m_FaceName, font.m_Height, font.m_Weight, is_italic, is_underline);
-
-	font.m_IsItalic = (bool) is_italic;
-	font.m_IsUnderline = (bool) is_underline;
-
-	return font;
-}
-
 void set_draw_style (SCStudyInterfaceRef sc, n_ACSIL::s_GraphicsFont font, struct colors colors)
 {
 	sc.Graphics.SetTextAlign(TA_NOUPDATECP);
@@ -115,12 +115,12 @@ struct grid calculate_grid (SCStudyInterfaceRef sc)
 	SCString last_text = bar_to_text(sc, last_bar);
 
 	n_ACSIL::s_GraphicsFont font = get_chart_font(sc);
-	n_ACSIL::s_GraphicsSize text_dimensions;
-	sc.Graphics.GetTextSizeWithFont(last_text, font, text_dimensions);
+	n_ACSIL::s_GraphicsSize last_text_dimensions;
+	sc.Graphics.GetTextSizeWithFont(last_text, font, last_text_dimensions);
 
 	struct grid grid;
 
-	grid.margin_top = text_dimensions.Height * 2;
+	grid.margin_top = last_text_dimensions.Height * 2;
 
 	grid.left = sc.StudyRegionLeftCoordinate;
 	grid.right = sc.StudyRegionRightCoordinate;
@@ -130,8 +130,8 @@ struct grid calculate_grid (SCStudyInterfaceRef sc)
 	grid.width = grid.right - grid.left;
 	grid.height = grid.bottom - grid.top;
 
-	grid.cell_width = text_dimensions.Width;
-	grid.cell_height = text_dimensions.Height;
+	grid.cell_width = last_text_dimensions.Width;
+	grid.cell_height = last_text_dimensions.Height;
 
 	grid.visible_columns = grid.width / grid.cell_width;
 	grid.rows = grid.height / grid.cell_height;
