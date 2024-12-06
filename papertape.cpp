@@ -163,6 +163,10 @@ void draw (HWND WindowHandle, HDC DeviceContext, SCStudyInterfaceRef sc)
 			if (bar_index >= sc.ArraySize)
 				return;
 
+			// i think i prefer seeing only closed bars
+			if (bar_index >= sc.ArraySize - 1)
+				return;
+
 			struct bar bar = get_bar(sc, bar_index);
 			SCString text = bar_to_text(sc, bar);
 
