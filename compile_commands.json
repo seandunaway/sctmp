@@ -11,6 +11,7 @@
    "-Weverything",
    "-Wno-c++98-compat",
    "-Wno-covered-switch-default",
+   "-Wno-format-nonliteral",
    "-Wno-missing-prototypes",
    "-Wno-old-style-cast",
    "-Wno-unsafe-buffer-usage",
