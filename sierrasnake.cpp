@@ -75,10 +75,10 @@ enum game_phase
 
 enum snake_direction
 {
-	snake_direction_up,
-	snake_direction_down,
 	snake_direction_left,
-	snake_direction_right
+	snake_direction_right,
+	snake_direction_up,
+	snake_direction_down
 };
 
 struct persistent
@@ -102,7 +102,7 @@ n_ACSIL::s_GraphicsFont create_monospace_font ()
 {
 	n_ACSIL::s_GraphicsFont monospace_font;
 
-	monospace_font.m_FaceName = "Courier New";
+	monospace_font.m_FaceName = "Consolas";
 	monospace_font.m_Height = 12;
 	monospace_font.m_Weight = FW_HEAVY;
 
@@ -149,7 +149,8 @@ struct chart_dimensions get_chart_dimensions (SCStudyInterfaceRef sc)
 	chart_dimensions.center.x = chart_dimensions.right / 2;
 	chart_dimensions.center.y = chart_dimensions.bottom / 2;
 
-	chart_dimensions.tile_size = chart_dimensions.height / tile_scale_factor;
+	int width_height_average = (chart_dimensions.width + chart_dimensions.height) / 2;
+	chart_dimensions.tile_size = width_height_average / tile_scale_factor;
 
 	return chart_dimensions;
 }
