@@ -349,7 +349,7 @@ void handle_food_collision (struct persistent *persistent)
 
 void handle_snake_collision (struct persistent *persistent)
 {
-	for (int i = 1; i <= persistent->snake_length; i++)
+	for (int i = 2; i <= persistent->snake_length; i++)
 	{
 		if (!is_collision(persistent->snake[0], persistent->snake[i]))
 			continue;
