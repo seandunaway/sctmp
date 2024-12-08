@@ -271,7 +271,6 @@ void handle_keyboard_input (SCStudyInterfaceRef sc, struct persistent *persisten
 			break;
 
 		case 'r':
-			persistent->paused = false;
 			persistent->game_phase = game_phase_init;
 			break;
 
@@ -464,10 +463,10 @@ SCSFExport scsf_sierrasnake (SCStudyInterfaceRef sc)
 	if (sc.LastCallToFunction)
 		return free_persistent(sc, persistent);
 
+	handle_keyboard_input(sc, persistent);
+
 	if (persistent->game_phase == game_phase_init)
 		initialize(sc, persistent);
-
-	handle_keyboard_input(sc, persistent);
 
 	if (persistent->paused)
 		return;
