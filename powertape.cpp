@@ -9,11 +9,11 @@ struct persistent
 	uint64_t is_volume;
 	uint64_t ib_volume;
 	uint64_t rb_volume;
-	uint64_t productive_sell_volume;
-	uint64_t productive_buy_volume;
-	float productive_sell_amount;
-	float productive_buy_amount;
-	double total_volume, p_rs, p_is, p_ib, p_rb;
+	double total_volume;
+	double rs_percent;
+	double is_percent;
+	double ib_percent;
+	double rb_persent;
 };
 
 struct persistent *get_persistent (SCStudyInterfaceRef sc)
@@ -95,16 +95,8 @@ void update (SCStudyInterfaceRef sc, struct persistent *persistent)
 
 				persistent->ib_volume += record.Volume;
 
-				if (sc.FormattedEvaluate(record.Price, (unsigned int) sc.BaseGraphValueFormat, GREATER_OPERATOR, persistent->last_price, (unsigned int) sc.BaseGraphValueFormat))
-				{
-					// persistent->ib_volume += record.Volume * 9; // @todo ?
-					persistent->productive_buy_volume += record.Volume;
-					persistent->productive_buy_amount += record.Price - persistent->last_price;
-				}
-				else
-				{
+				if (!sc.FormattedEvaluate(record.Price, (unsigned int) sc.BaseGraphValueFormat, GREATER_OPERATOR, persistent->last_price, (unsigned int) sc.BaseGraphValueFormat))
 					persistent->rs_volume += record.Volume;
-				}
 
 				break;
 
@@ -112,16 +104,8 @@ void update (SCStudyInterfaceRef sc, struct persistent *persistent)
 
 				persistent->is_volume += record.Volume;
 
-				if (sc.FormattedEvaluate(record.Price, (unsigned int) sc.BaseGraphValueFormat, LESS_OPERATOR, persistent->last_price, (unsigned int) sc.BaseGraphValueFormat))
-				{
-					// persistent->is_volume += record.Volume * 9; // @todo ?
-					persistent->productive_sell_volume += record.Volume;
-					persistent->productive_sell_amount += persistent->last_price - record.Price;
-				}
-				else
-				{
+				if (!sc.FormattedEvaluate(record.Price, (unsigned int) sc.BaseGraphValueFormat, LESS_OPERATOR, persistent->last_price, (unsigned int) sc.BaseGraphValueFormat))
 					persistent->rb_volume += record.Volume;
-				}
 
 				break;
 
@@ -135,16 +119,15 @@ void update (SCStudyInterfaceRef sc, struct persistent *persistent)
 		persistent->last_price = record.Price;
 
 		persistent->total_volume = (double) (persistent->rs_volume + persistent->is_volume + persistent->ib_volume + persistent->rb_volume);
-		persistent->p_rs = (double) persistent->rs_volume / persistent->total_volume;
-		persistent->p_is = (double) persistent->is_volume / persistent->total_volume;
-		persistent->p_ib = (double) persistent->ib_volume / persistent->total_volume;
-		persistent->p_rb = (double) persistent->rb_volume / persistent->total_volume;
+		persistent->rs_percent = (double) persistent->rs_volume / persistent->total_volume;
+		persistent->is_percent = (double) persistent->is_volume / persistent->total_volume;
+		persistent->ib_percent = (double) persistent->ib_volume / persistent->total_volume;
+		persistent->rb_persent = (double) persistent->rb_volume / persistent->total_volume;
 
-		// @todo ?
-		SCString debug;
-		debug.AppendFormat
+		SCString log;
+		log.AppendFormat
 		(
-			"#:%d type:%d price:%.2f | rs:%d is:%d ib:%d rb:%d | rs:%.4f is:%.4f ib:%.4f rb:%.4f | i:%.4f r:%.4f | pbv:%d psv:%d | pba:%.2f psa:%.2f",
+			"#:%d type:%d price:%.2f | rs:%d is:%d ib:%d rb:%d | rs:%.4f is:%.4f ib:%.4f rb:%.4f",
 			record.Sequence,
 			record.Type,
 			(double) record.Price,
@@ -152,57 +135,13 @@ void update (SCStudyInterfaceRef sc, struct persistent *persistent)
 			persistent->is_volume,
 			persistent->ib_volume,
 			persistent->rb_volume,
-			persistent->p_rs,
-			persistent->p_is,
-			persistent->p_ib,
-			persistent->p_rb,
-			(double) persistent->ib_volume / (double) persistent->is_volume,
-			(double) persistent->rb_volume / (double) persistent->rs_volume,
-			persistent->productive_buy_volume,
-			persistent->productive_sell_volume,
-			(double) persistent->productive_buy_amount,
-			(double) persistent->productive_sell_amount
+			persistent->rs_percent,
+			persistent->is_percent,
+			persistent->ib_percent,
+			persistent->rb_persent
 		);
-
-		sc.AddMessageToLog(debug, 1);
+		sc.AddMessageToLog(log, 1);
 	}
-}
-
-// @todo ?
-struct persistent scale (struct persistent persistent)
-{
-	double exponentiated_sum = 0.0;
-	double exponentiated_diff[4];
-	double values[4] = {persistent.p_rs, persistent.p_is, persistent.p_ib, persistent.p_rb};
-
-	for (int i = 0; i < 4; i++)
-	{
-		double diff = values[i] - 0.25;
-		exponentiated_diff[i] = diff * diff * (diff * 0.1 + 1);
-		exponentiated_sum += exponentiated_diff[i];
-	}
-
-	double sum_normalized = 0.0;
-
-	for (int i = 0; i < 4; i++)
-	{
-		values[i] = exponentiated_diff[i] / exponentiated_sum;
-		sum_normalized += values[i];
-	}
-
-	double correction_factor = 1.0 / sum_normalized;
-
-	for (int i = 0; i < 4; i++)
-	{
-		values[i] *= correction_factor;
-	}
-
-	persistent.p_rs = values[0];
-	persistent.p_is = values[1];
-	persistent.p_ib = values[2];
-	persistent.p_rb = values[3];
-
-	return persistent;
 }
 
 void draw (HWND WindowHandle, HDC DeviceContext, SCStudyInterfaceRef sc)
@@ -236,19 +175,17 @@ void draw (HWND WindowHandle, HDC DeviceContext, SCStudyInterfaceRef sc)
 	ib.Right = region_width;
 	rb.Right = region_width;
 
-	struct persistent persistent_scaled = *persistent; // scale(*persistent);
-
 	rs.Top = 0;
-	rs.Bottom = rs.Top + (int) (region_height * persistent_scaled.p_rs);
+	rs.Bottom = rs.Top + (int) (region_height * persistent->rs_percent);
 
 	is.Top = rs.Bottom;
-	is.Bottom = is.Top + (int) (region_height * persistent_scaled.p_is);
+	is.Bottom = is.Top + (int) (region_height * persistent->is_percent);
 
 	ib.Top = is.Bottom;
-	ib.Bottom = ib.Top + (int) (region_height * persistent_scaled.p_ib);
+	ib.Bottom = ib.Top + (int) (region_height * persistent->ib_percent);
 
 	rb.Top = ib.Bottom;
-	rb.Bottom = rb.Top + (int) (region_height * persistent_scaled.p_rb);
+	rb.Bottom = rb.Top + (int) (region_height * persistent->rb_persent);
 
 	sc.Graphics.FillRectangleWithColor(rs, rs_color);
 	sc.Graphics.FillRectangleWithColor(is, is_color);
@@ -262,10 +199,10 @@ void draw (HWND WindowHandle, HDC DeviceContext, SCStudyInterfaceRef sc)
 	sc.Graphics.SetTextFont(font);
 
 	SCString rs_txt, is_txt, ib_txt, rb_txt;
-	rs_txt.Format("%0.2f%%", persistent->p_rs * 100);
-	is_txt.Format("%0.2f%%", persistent->p_is * 100);
-	ib_txt.Format("%0.2f%%", persistent->p_ib * 100);
-	rb_txt.Format("%0.2f%%", persistent->p_rb * 100);
+	rs_txt.Format("%0.2f%%", persistent->rs_percent * 100);
+	is_txt.Format("%0.2f%%", persistent->is_percent * 100);
+	ib_txt.Format("%0.2f%%", persistent->ib_percent * 100);
+	rb_txt.Format("%0.2f%%", persistent->rb_persent * 100);
 
 	sc.Graphics.DrawTextAt(rs_txt, rs.Left, rs.Top + (rs.Bottom - rs.Top) / 2);
 	sc.Graphics.DrawTextAt(is_txt, is.Left, is.Top + (is.Bottom - is.Top) / 2);
@@ -286,13 +223,6 @@ SCSFExport scsf_powertape (SCStudyInterfaceRef sc)
 	if (sc.LastCallToFunction)
 		return free_persistent(sc, persistent);
 
-	// @todo ?
-	if (sc.IsNewBar(sc.IndexOfLastVisibleBar))
-	{
-		persistent->initialized = false;
-		return;
-	}
-
 	handle_input(sc, persistent);
 
 	if (!persistent->initialized)
@@ -301,4 +231,10 @@ SCSFExport scsf_powertape (SCStudyInterfaceRef sc)
 	update(sc, persistent);
 
 	sc.p_GDIFunction = draw;
+
+	if (sc.IsNewBar(sc.IndexOfLastVisibleBar))
+	{
+		persistent->initialized = false;
+		return;
+	}
 }
