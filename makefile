@@ -1,6 +1,6 @@
-destdir ?= /Volumes/[C]%Windows%11/SierraChart/Data/ /Volumes/[C]%Windows%11/SierraChartDATA/Data/ /Volumes/[C]%Windows%11/SierraChartREPLAY/Data/
+destdir ?= /Volumes/[C]%Windows%11/SierraChartTMP/Data/
 host ?= windows-11
-port ?= 22903 22904 22905
+port ?= 22906
 sierrachart ?= /Users/sean/src/_lib/sierrachart
 xwin ?= /Users/sean/src/_lib/xwin
 source_map ?= z:/src
